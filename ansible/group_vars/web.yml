@@ -1,0 +1,6 @@
+app_repo: "https://github.com/pravinmishraaws/theepicbook.git"
+app_path: "/var/www/theepicbook"
+db_name: "bookstore"
+db_user: "oladayo"
+db_pass: "Oladayo!"
+node_version: "18"

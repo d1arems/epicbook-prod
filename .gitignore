@@ -1,0 +1,29 @@
+# --- Node.js ---
+node_modules/
+npm-debug.log*
+.env
+.pids
+.logs
+
+# --- Terraform ---
+# Ignore the local provider cache and state files (which contain secrets)
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform.lock.hcl
+
+# --- Ansible ---
+# Ignore temporary retry files and local cache
+*.retry
+ansible_debug.log
+.ansible_cache/
+# Ignore Ansible Vault password files if used locally
+.vault_pass
+
+# --- OS & IDEs ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

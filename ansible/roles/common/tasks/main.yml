@@ -1,0 +1,10 @@
+- name: Update apt and install base packages
+  apt:
+    name: [git, curl, python3-pymysql, mysql-server]
+    state: present
+    update_cache: yes
+
+- name: Install Node.js
+  shell: |
+    curl -fsSL https://deb.nodesource.com/setup_{{ node_version }}.x | bash -
+    apt-get install -y nodejs

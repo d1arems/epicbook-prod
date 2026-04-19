@@ -1,0 +1,70 @@
+- name: Create MySQL database
+  mysql_db:
+    name: "{{ db_name }}"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create MySQL user
+  mysql_user:
+    name: "{{ db_user }}"
+    password: "{{ db_pass }}"
+    priv: "{{ db_name }}.*:ALL"
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Clone EpicBook repo
+  git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_path }}"
+    force: yes
+
+# ... previous tasks like git clone ...
+
+- name: Import SQL schema
+  shell: "mysql -u {{ db_user }} -p'{{ db_pass }}' {{ db_name }} < {{ app_path }}/db/BuyTheBook_Schema.sql"
+  register: sql_import
+  failed_when:
+    - sql_import.rc != 0
+    - "'already exists' not in sql_import.stderr"
+
+- name: Seed Database Tables
+  shell: "mysql -u {{ db_user }} -p'{{ db_pass }}' {{ db_name }} < {{ app_path }}/db/{{ item }}"
+  loop:
+    - author_seed.sql
+    - books_seed.sql
+  register: sql_seed
+  failed_when:
+    - sql_seed.rc != 0
+    - "'already exists' not in sql_seed.stderr"
+
+# ... subsequent tasks like npm install ...
+
+- name: Install PM2 globally
+  npm:
+    name: pm2
+    global: yes
+
+- name: Deploy corrected Sequelize config
+  template:
+    src: config.json.j2
+    dest: "{{ app_path }}/config/config.json"
+
+- name: Stop any process on 8080 to prevent conflicts
+  shell: "fuser -k 8080/tcp || true && pm2 delete epicbook || true && pm2 start server.js --name epicbook"
+  args:
+    chdir: "{{ app_path }}"
+  become: yes
+
+- name: Ensure app is started with PM2
+  shell: "pm2 start server.js --name epicbook -f"
+  args:
+    chdir: "{{ app_path }}"
+  become: no  # Run as adminuser, not root/sudo
+
+- name: Get PM2 path
+  command: which pm2
+  register: pm2_path
+  changed_when: false
+
+- name: Start app with PM2
+  shell: "{{ pm2_path.stdout }} start server.js --name epicbook --force"
+  args:
+    chdir: "{{ app_path }}"
