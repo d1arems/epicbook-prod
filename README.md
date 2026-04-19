@@ -172,7 +172,7 @@ margin-top: 50px;
 </section>
 
 <div class="footer">
-    Generated for Oladayo Aremu | DevOps Deployment Project
+    Author: Oladayo Aremu | DevOps Deployment Project
 </div>
 </body>
 </html>
