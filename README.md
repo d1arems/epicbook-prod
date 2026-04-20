@@ -145,7 +145,7 @@ margin-top: 50px;
 
 <section>
     <h2>Stepwise Execution</h2>
-    <p>1. <strong>Infrastructure:</strong> Terraform was used to provision the Azure/AWS VM.</p>
+    <p>1. <strong>Infrastructure:</strong> Terraform was used to provision the Azure VM.</p>
     <pre>terraform apply -auto-approve</pre>
     
     <p>2. <strong>Configuration:</strong> Ansible organized into 3 roles (Common, Nginx, EpicBook).</p>
@@ -157,17 +157,17 @@ margin-top: 50px;
     
     <div class="issue-card">
         <strong>1. Role Structure Error</strong>
-        <p>Ansible roles require <code>tasks/main.yml</code>. We moved files from the role root into the correct subdirectory.</p>
+        <p>Ansible roles require <code>tasks/main.yml</code>. I moved files from the role root into the correct subdirectory.</p>
     </div>
 
     <div class="issue-card">
         <strong>2. Database Connection (Sequelize)</strong>
-        <p>The app crashed because <code>config/config.json</code> defaulted to root. We used an Ansible J2 template to overwrite this with <code>db_user</code> variables.</p>
+        <p>The app crashed because <code>config/config.json</code> defaulted to root. I used an Ansible J2 template to overwrite this with <code>db_user</code> variables.</p>
     </div>
 
     <div class="issue-card">
         <strong>3. Port Conflict (8080)</strong>
-        <p>Ghost processes caused <code>EADDRINUSE</code>. We used <code>fuser -k</code> to clear the port before <code>pm2 start</code>.</p>
+        <p>Ghost processes caused <code>EADDRINUSE</code>. I used <code>fuser -k</code> to clear the port before <code>pm2 start</code>.</p>
     </div>
 </section>
 
@@ -214,8 +214,8 @@ mv roles/epicbook/main.yml roles/epicbook/tasks/main.yml
 mv roles/nginx/main.yml roles/nginx/tasks/main.yml
 2. PM2 Command Not Found
 Problem: Task failed with rc: 127 because the shell couldn't find pm2.
-Cause: PM2 was installed globally but was not in the system's PATH during the Ansible session.
-Resolution: Used which pm2 to find the absolute path and used it in the shell command.
+Cause: PM2 was installed but was not in the system's PATH during the Ansible session.
+Resolution: I installed PM2 globally and still ensured its absolute path was used it in the shell command.
 
 Bash
 sudo npm install pm2 -g
@@ -231,7 +231,7 @@ cat /var/www/theepicbook/config/config.json
 4. Port 8080 Already in Use (EADDRINUSE)
 Problem: 502 Bad Gateway because the new app instance couldn't bind to port 8080.
 Cause: A background process was still holding the port.
-Resolution:
+Resolution: I killed the process running on port 8080 at that time and used PM2 to start the server.js again.
 
 Bash
 sudo fuser -k 8080/tcp
